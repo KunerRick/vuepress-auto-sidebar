@@ -23,8 +23,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/nikalsh/vuepress-auto-sidebar.git"
+    "url": "https://github.com/KunerRick/vuepress-auto-sidebar.git"
   },
-  "homepage": "https://github.com/nikalsh/vuepress-auto-sidebar",
+  "homepage": "https://github.com/KunerRick/vuepress-auto-sidebar",
   "license": "MIT"
 }
