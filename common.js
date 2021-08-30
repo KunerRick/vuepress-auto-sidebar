@@ -1,10 +1,12 @@
 const path = require("path");
 const fs = require("fs");
+
+let sidebar = {}
 /**
  * 获取根目录
  */
-function getRootDir(relatePath = "") {
-  return path.resolve(process.cwd() + relatePath);
+function getRootDir(relatePath = "docs") {
+  return path.resolve(process.cwd() , relatePath);
 }
 
 /**
@@ -24,7 +26,7 @@ function treeWork(dir, cb, level = 0, parent = "") {
   });
 
   pathList.map(val => {
-    absPath = path.resolve(dir, val);
+    absPath = path.resolve(getRootDir(),dir, val);
     let isDir = fs.statSync(absPath).isDirectory();
 
     let subRelatePath = path.join(parent, val);
@@ -91,7 +93,7 @@ function sequenceTtraversal(dir, cb, level = 0, parent = "") {
   // 下一层级遍历
   let nextDirArr = [];
   pathList.map(val => {
-    absPath = path.resolve(dir, val);
+    absPath = path.resolve(getRootDir(),dir, val);
     let isDir = fs.statSync(absPath).isDirectory();
     let subRelatePath = path.join(parent, val);
     if (isDir) {
@@ -216,7 +218,7 @@ getSidebarItems = function(dir, root, baseOption = "/") {
   });
 };
 
-getRoot = function() {
+getRoot = function(base="") {
   tryFindBase();
   let root;
 
