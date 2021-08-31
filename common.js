@@ -1,12 +1,12 @@
-const path = require("path");
-const fs = require("fs");
+const path = require('path')
+const fs = require('fs')
 
 let sidebar = {}
 /**
  * 获取根目录
  */
-function getRootDir(relatePath = "docs") {
-  return path.resolve(process.cwd() , relatePath);
+function getRootDir(relatePath = 'docs') {
+  return path.resolve(process.cwd(), relatePath)
 }
 
 /**
@@ -16,54 +16,54 @@ function getRootDir(relatePath = "docs") {
  * @param {*} level
  * @param {*} parent
  */
-function treeWork(dir, cb, level = 0, parent = "") {
-  let absPath = path.resolve(getRootDir(), dir);
+function treeWork(dir, cb, level = 0, parent = '') {
+  let absPath = path.resolve(getRootDir(), dir)
   if (!fs.statSync(absPath).isDirectory()) {
-    return;
+    return
   }
-  let pathList = fs.readdirSync(absPath).filter(file => {
-    return file !== ".vuepress";
-  });
+  let pathList = fs.readdirSync(absPath).filter((file) => {
+    return file !== '.vuepress'
+  })
 
-  pathList.map(val => {
-    absPath = path.resolve(getRootDir(),dir, val);
-    let isDir = fs.statSync(absPath).isDirectory();
+  pathList.map((val) => {
+    absPath = path.resolve(getRootDir(), dir, val)
+    let isDir = fs.statSync(absPath).isDirectory()
 
-    let subRelatePath = path.join(parent, val);
+    let subRelatePath = path.join(parent, val)
     cb({
       parent,
       path: subRelatePath,
       level,
-      isDir
-    });
+      isDir,
+    })
 
     if (isDir) {
-      treeWork(absPath, cb, level + 1, subRelatePath);
+      treeWork(absPath, cb, level + 1, subRelatePath)
     }
-  });
+  })
 }
 
 function getTitle(filePath) {
-  let tempFile = filePath;
-  let title = path.basename(tempFile);
+  let tempFile = filePath
+  let title = path.basename(tempFile)
   if (fs.statSync(tempFile).isDirectory()) {
-    tempFile = path.resolve(tempFile, "README.md");
+    tempFile = path.resolve(tempFile, 'README.md')
   }
 
   try {
-    let content = fs.readFileSync(tempFile).toString();
-    let startIndex = content.indexOf("#");
-    let endIndex = content.indexOf("\n", startIndex);
+    let content = fs.readFileSync(tempFile).toString()
+    let startIndex = content.indexOf('#')
+    let endIndex = content.indexOf('\n', startIndex)
     if (startIndex !== -1) {
       if (endIndex !== -1) {
-        title = content.slice(startIndex + 1, endIndex - 1);
+        title = content.slice(startIndex + 1, endIndex)
       } else {
-        title = content.slice(startIndex + 1);
+        title = content.slice(startIndex + 1)
       }
     }
   } catch (e) {
   } finally {
-    return title;
+    return title
   }
 }
 
@@ -75,61 +75,61 @@ function getTitle(filePath) {
  * @param {*} parent
  * @returns
  */
-function sequenceTtraversal(dir, cb, level = 0, parent = "") {
-  let absPath = path.resolve(getRootDir(), dir);
+function sequenceTtraversal(dir, cb, level = 0, parent = '') {
+  let absPath = path.resolve(getRootDir(), dir)
   if (!fs.statSync(absPath).isDirectory()) {
-    return;
+    return
   }
   let pathList = fs
     .readdirSync(absPath)
-    .filter(file => {
-      return file !== ".vuepress";
+    .filter((file) => {
+      return file !== '.vuepress'
     })
     .sort((a, b) => {
       // 按首字母ascii码进行排序
-      return a.slice(0, 1).charCodeAt() - b.slice(0, 1).charCodeAt();
-    });
+      return a.slice(0, 1).charCodeAt() - b.slice(0, 1).charCodeAt()
+    })
 
   // 下一层级遍历
-  let nextDirArr = [];
-  pathList.map(val => {
-    absPath = path.resolve(getRootDir(),dir, val);
-    let isDir = fs.statSync(absPath).isDirectory();
-    let subRelatePath = path.join(parent, val);
+  let nextDirArr = []
+  pathList.map((val) => {
+    absPath = path.resolve(getRootDir(), dir, val)
+    let isDir = fs.statSync(absPath).isDirectory()
+    let subRelatePath = path.join(parent, val)
     if (isDir) {
-      nextDirArr.push([absPath, cb, level + 1, subRelatePath]);
+      nextDirArr.push([absPath, cb, level + 1, subRelatePath])
     }
     cb({
       parent,
       path: subRelatePath,
       level,
       title: getTitle(absPath),
-      isDir
-    });
-  });
+      isDir,
+    })
+  })
 
-  nextDirArr.map(item => {
-    sequenceTtraversal(...item);
-  });
+  nextDirArr.map((item) => {
+    sequenceTtraversal(...item)
+  })
 }
 
 function normalizePath(str) {
-  if (!str) return;
-  let temp = path.normalize(str);
+  if (!str) return
+  let temp = path.normalize(str)
 
-  temp = temp.replace(/\\/g, "/");
-  if (str.indexOf("/") != 0) {
-    temp = "/" + temp;
+  temp = temp.replace(/\\/g, '/')
+  if (str.indexOf('/') != 0) {
+    temp = '/' + temp
   }
 
-  if (str.indexOf(".md") > -1) {
-    temp = temp.slice(0, -3);
+  if (str.indexOf('.md') > -1) {
+    temp = temp.slice(0, -3)
   } else {
-    if (str.lastIndexOf("/") != str.length - 1) {
-      temp += "/";
+    if (str.lastIndexOf('/') != str.length - 1) {
+      temp += '/'
     }
   }
-  return temp;
+  return temp
 }
 
 /**
@@ -138,110 +138,110 @@ function normalizePath(str) {
  * @param {*} pathArr
  * @returns
  */
-function getSidebar(rootPath = "", pathArr = []) {
-  let root;
+function getSidebar(rootPath = '', pathArr = []) {
+  let root
   if (!rootPath) {
-    root = getRoot();
+    root = getRoot()
   } else {
-    root = path.resolve(process.cwd(), rootPath);
+    root = path.resolve(process.cwd(), rootPath)
   }
 
-  let sidebarArr = [];
+  let sidebarArr = []
 
-  let tempMap = {};
+  let tempMap = {}
 
   let cbFunc = ({ level, parent, path, title, isDir }) => {
     if (level === 0) {
-      let tempPath = normalizePath(path);
-      if (tempPath.indexOf("README") != -1) {
-        return;
+      let tempPath = normalizePath(path)
+      if (tempPath.indexOf('README') != -1) {
+        return
       }
       let tempItem = {
         title,
         collapsable: false,
         path: tempPath,
-        children: []
-      };
-      tempMap[tempPath] = tempItem;
-      sidebarArr.push(tempItem);
-      return;
+        children: [],
+      }
+      tempMap[tempPath] = tempItem
+      sidebarArr.push(tempItem)
+      return
     }
 
-    if (path.indexOf("README.md") != -1) {
-      return;
+    if (path.indexOf('README.md') != -1) {
+      return
     }
 
-    let parentPath = normalizePath(parent);
+    let parentPath = normalizePath(parent)
     if (!tempMap[parentPath]) {
       tempMap[parentPath] = {
         title,
         path: parentPath,
         collapsable: false,
-        children: []
-      };
+        children: [],
+      }
     }
-    let tempPath = normalizePath(path);
+    let tempPath = normalizePath(path)
     let tempItem = {
       title,
       path: tempPath,
       collapsable: false,
-      children: []
-    };
-    tempMap[tempPath] = tempItem;
-    tempMap[parentPath].children.push(tempItem);
-  };
+      children: [],
+    }
+    tempMap[tempPath] = tempItem
+    tempMap[parentPath].children.push(tempItem)
+  }
 
   if (pathArr && pathArr.length) {
-    pathArr.map(dir => {
-      sequenceTtraversal(dir, cbFunc, 0, dir);
-    });
+    pathArr.map((dir) => {
+      sequenceTtraversal(dir, cbFunc, 0, dir)
+    })
   } else {
-    sequenceTtraversal(root, cbFunc);
+    sequenceTtraversal(root, cbFunc)
   }
-  return sidebarArr;
+  return sidebarArr
 }
 
-getSidebarItems = function(dir, root, baseOption = "/") {
-  return dir.map(e => {
-    const childDir = path.resolve(root, e);
+getSidebarItems = function (dir, root, baseOption = '/') {
+  return dir.map((e) => {
+    const childDir = path.resolve(root, e)
     return (sidebaritem = {
       // title: e,
-      path: baseOption + e + "/",
+      path: baseOption + e + '/',
       // collapsable: true,
       children: [
         ...fs
           .readdirSync(childDir)
-          .filter(file => !file.includes(".md"))
-          .map(c => "/" + e + "/" + c + "/")
-      ]
-    });
-  });
-};
+          .filter((file) => !file.includes('.md'))
+          .map((c) => '/' + e + '/' + c + '/'),
+      ],
+    })
+  })
+}
 
-getRoot = function(base="") {
-  tryFindBase();
-  let root;
+getRoot = function (base = '') {
+  tryFindBase()
+  let root
 
   if (!!sidebar.baseOption) {
-    root = path.join(getRootDir(), sidebar.baseOption);
+    root = path.join(getRootDir(), sidebar.baseOption)
   } else {
-    root = getRootDir();
+    root = getRootDir()
   }
-  return root;
-};
+  return root
+}
 
-tryFindBase = function() {
+tryFindBase = function () {
   try {
-    let config = path.join(getRootDir(), "/.vuepress/config.js");
-    let contents = fs.readFileSync(config, "utf8");
-    let base = contents.match(/(?<="?base"?:+\s?").+(?=")/)[0];
-    sidebar.baseOption = base;
+    let config = path.join(getRootDir(), '/.vuepress/config.js')
+    let contents = fs.readFileSync(config, 'utf8')
+    let base = contents.match(/(?<="?base"?:+\s?").+(?=")/)[0]
+    sidebar.baseOption = base
   } catch (err) {
-    console.log("Vuepress-auto-sidebar: Base option not found.");
+    console.log('Vuepress-auto-sidebar: Base option not found.')
   }
-};
+}
 
 module.exports = {
   getRootDir,
-  getSidebar
-};
+  getSidebar,
+}
